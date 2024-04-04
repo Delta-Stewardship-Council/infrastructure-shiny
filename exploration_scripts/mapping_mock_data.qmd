@@ -1,0 +1,90 @@
+---
+title: "Mapping Levee Islands"
+format: html
+---
+
+## About this script
+Here we will look into different ways of visualizing the levee island with the data layers of the RAND model using a "mock" data set.
+
+## Set up
+
+```{r}
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(readr)
+library(leaflet)
+library(mapview)
+library(leafpop)
+library(here)
+
+```
+
+
+## Read data
+
+**Spatial Data: Levee islands**
+
+These shapefiles come from the swg-23-infrastructure repository unde clean-data
+
+```{r}
+levee_area <- read_sf(here("mock_data", "levees_shapefiles", "fixedLevees.shp"))
+
+plot(levee_area$geometry)
+
+head(levee_area)
+
+```
+
+**Mock Data: RAND model output**
+
+```{r}
+rand_mock <- read_csv(here("mock_data", "mock_rand_data.csv"))
+```
+
+
+## Joining spatial data with model mock data
+```{r}
+levee_area_data <- levee_area %>% 
+  mutate(island_tract = paste0("island_", 1:139)) %>% 
+  left_join(rand_mock, by = "island_tract")
+```
+
+
+
+## Plotting with `mapview`
+```{r}
+mapview(levee_area_data, zcol = c("risk_scaled_percent",
+                                  "prob_flood",
+                                  "water_quality"),
+        popup = popupTable(
+    levee_area_data,
+    zcol = c(
+      "risk_scaled_percent",
+      "prob_flood",
+      "water_quality"
+      )
+    )
+    )
+```
+
+Next steps
+- Plot different layers
+- Create a dashboard with map + Explanation of RNAD layers
+
+
+
+## Leaflet basemap
+
+```{r}
+leaflet() %>% 
+    addTiles(
+        urlTemplate = "https://api.mapbox.com/styles/v1/moowill/cki3zbj5o4k4b19qlq98amqia/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibW9vd2lsbCIsImEiOiJja2kzejloOHkxdzNtMnhxcTAwY3Zqa25zIn0.VCsBGYnJr6Z7A7XnD157cg",
+        attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+    )  %>% 
+    setView(lat=38.1, lng=-121.8, zoom=10)
+    # addMarkers(data = points(), group="Location Pin")
+```
+
+
+

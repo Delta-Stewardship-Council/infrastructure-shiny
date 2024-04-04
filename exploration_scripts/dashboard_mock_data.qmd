@@ -1,0 +1,158 @@
+---
+title: "Evaluating the social, economic, and ecological costs and benefits of levee infrastructure within the Delta"
+format: dashboard
+---
+
+```{r load libraries}
+#| include: false
+
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(readr)
+library(leaflet)
+library(mapview)
+library(leafpop)
+library(here)
+library(palmerpenguins)
+
+```
+
+```{r read data}
+levee_area <- read_sf(here("mock_data", "levees_shapefiles", "fixedLevees.shp"))
+
+rand_mock <- read_csv(here("mock_data", "mock_rand_data.csv"))
+
+levee_area_data <- levee_area %>% 
+  mutate(island_tract = paste0("island_", 1:139)) %>% 
+  left_join(rand_mock, by = "island_tract")
+
+```
+
+
+# Reulsts
+
+## Column 1 {width=30%}
+
+
+```{r}
+#| content: valuebox
+#| title: "Total Penguins"
+
+list(
+  icon = "hash",
+  color = "warning",
+  value = nrow(penguins)
+)
+```
+
+
+
+```{r}
+#| content: valuebox
+#| title: "Penguin Species"
+
+list(
+  icon = "feather",
+  color = "light",
+  value = length(unique(penguins$species)))
+```
+
+
+## Column 2 {width=70%}
+
+::: {.card title="About Palmer Station" height=25%}
+[Palmer Station](https://pallter.marine.rutgers.edu/) is a site part of the Long-Term Ecological Research (LTER) Network. It is one of the three United States research stations located in Antarctica. 
+
+It is also where the data from the [Palmer Penguins](https://allisonhorst.github.io/palmerpenguins/) R package was collected. The penguin data was collected and made available by [Dr. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php).
+
+
+:::
+
+
+
+```{r}
+
+
+```
+
+
+# Data {orientation="rows"}
+
+## Row 1 {height="10%"}
+
+::: {.card}
+Levees are critical to life in the Delta, but management decisions on funding for upkeep and improvement are not fully informed by available data.
+:::
+
+
+## Row 2 {height="70%"}
+
+### Column 1
+
+```{r}
+#| title: Penguin Scatterplot
+
+
+ggplot(data = penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+    geom_point(aes(color = species)) +
+    scale_color_manual(values = c(
+        "Adelie" = "purple2",
+        "Chinstrap" = "orange",
+        "Gentoo" = "cyan4"
+    )) +
+    labs(
+        title = NULL,
+        x = "Flipper Length (mm)",
+        y = "Body Mass (g)",
+        color = "Species"
+    ) +
+    theme_minimal()
+```
+
+
+### Column 2
+
+
+
+```{r}
+#| title: Bill Depth Distribution of Chinstrap
+
+penguins %>%
+    filter(species == "Chinstrap") %>%
+    ggplot(aes(x = bill_depth_mm)) +
+    geom_histogram(fill = "orange") +
+    labs(title = NULL,
+         x = "Bill Depth (mm)",
+         y = NULL) +
+    theme_minimal()
+```
+
+
+
+```{r}
+#| title: Penguin Species on Biscoe Island
+
+# subsetted penguins data frame
+biscoe_sp <- penguins %>% 
+    filter(island == "Biscoe") %>% 
+    group_by(species) %>% 
+    summarize(count = n())
+    
+# bar plot 
+ggplot(data = biscoe_sp, aes(x = species, y = count)) +
+    geom_col(aes(fill = species)) +
+    scale_fill_manual(values = c(
+        "Adelie" = "purple2",
+        "Gentoo" = "cyan4"
+    )) +
+    labs(title = NULL,
+         x = NULL,
+         y = "Number of species",
+         fill = "Species") +
+    theme_minimal() 
+```
+
+
+
+
