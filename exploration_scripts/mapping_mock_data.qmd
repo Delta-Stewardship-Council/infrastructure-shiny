@@ -48,6 +48,8 @@ rand_mock <- read_csv(here("mock_data", "mock_rand_data.csv"))
 levee_area_data <- levee_area %>% 
   mutate(island_tract = paste0("island_", 1:139)) %>% 
   left_join(rand_mock, by = "island_tract")
+
+colnames(levee_area_data)
 ```
 
 
