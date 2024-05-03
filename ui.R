@@ -23,7 +23,7 @@ inline=function(x) {
   tags$div(style="display:inline-block;", x) # allows the content to flow inline with other elements, rather than taking a new line like typical block elements.
 }
 
-## Navitation Bar
+## Navigation Bar
 
 navbarPage("Delta Infrastructure: RAND Model", id="nav",
            
@@ -43,7 +43,7 @@ navbarPage("Delta Infrastructure: RAND Model", id="nav",
                                       draggable = TRUE, top = 60, left = 20, right = "auto", bottom = "auto",
                                       width = 330, height = "auto",
                                       
-                                      h3("Explore Social Vulnerability Indicators"),
+                                      h3("Explore RAND Model Components"),
                                       h4("Instructions:"),
                                       tags$div(
                                         "1. Step 1",
