@@ -1,0 +1,208 @@
+---
+title: "Bivarite Map"
+format: html
+---
+
+Here we will try to plot the Risk data and the social vulnerability data in one map by using a Bivarite Map. This kind of map is a Choropleth map that plots two variables by combining two color pallest and creating a grid of gradients.
+
+**Things to keep in mind:**
+The two variables have to somewhat be related.
+
+## What we are trying to achive?
+
+Based on the discussion with the group (meetng on 05/16) there are three layers from the RAND model we are going to map:
+ - Probability of failure
+ - Economic value (Impact to assets + Ecological Impact)
+ - Risk (combination of the two layers above)
+ 
+ The second component of this project is including the social vulnerability aspect. This will be calculated by combining different social variables and getting to one indicator. Once we have this data and all the layers that goes into it, we can decide hoe disagregate do we want to present the information.
+ 
+ 
+ For the purpose of this exercise we will try mappin Risk and Soc Vulnerability in one map.We can then expand the shiny app to be able to choose different layers (is possible).
+ 
+ 
+## Step 1: Getting mock data ready for plotting
+
+Load Libraries
+```{r}
+
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(readr)
+library(here)
+library(biscale)
+library(cowplot)
+library(leaflet)
+library(mapview)
+library(leafpop)
+
+```
+
+
+ Read Data
+```{r}
+levee_area <- read_sf(here("mock_data", "levees_shapefiles", "fixedLevees.shp"))
+
+rand_mock <- read_csv(here("mock_data", "mock_rand_data.csv"))
+
+levee_area_data <- levee_area %>% 
+  mutate(island_tract = paste0("island_", 1:139)) %>% 
+  left_join(rand_mock, by = "island_tract")
+
+colnames(levee_area_data)
+
+```
+ 
+ Selecting relevant data
+```{r}
+risk_soc_data <- levee_area_data %>% 
+  select(island_name = LMA, island_tract, social_vul, risk, risk_scaled_percent)
+
+colnames(risk_soc_data)
+```
+ 
+ Preparing data into biscale object
+```{r}
+biscale_data <- bi_class(risk_soc_data,
+                         x = risk,
+                         y = social_vul,
+                         style = "quantile",
+                         dim = 3)
+```
+ 
+ 
+Map
+```{r}
+
+## map
+bi_map <- ggplot()+
+  geom_sf(data = biscale_data,
+          mapping = aes(fill = bi_class),
+          color = "white",
+          size = 0.1,
+          show.legend = FALSE)+
+  bi_scale_fill(pal = "GrPink", dim = 3) +
+  labs(title = "Risk of levee failure and social vulnerability \n on the Delta [MOCK DATA]")+
+  bi_theme()
+
+bi_map
+
+## legend
+legend <- bi_legend(pal = "GrPink",
+                    dim = 3,
+                    xlab = "Higher Risk",
+                    ylab = "Higher Social Vul",
+                    size = 8)
+
+final_plot <- ggdraw() +
+  draw_plot(bi_map, 0, 0, 1, 1) +
+  draw_plot(legend, 0.2, .65, 0.2, 0.2)
+
+final_plot
+
+```
+
+
+
+## Mapping with leaflet
+```{r}
+st_crs(risk_soc_data) #NAD83 / California Albers
+
+risk_soc_wgs84 <- risk_soc_data %>% 
+  st_transform(crs = 4326) %>% 
+  mutate(risk_percentile = percent_rank(risk))
+
+bins <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
+
+pal <- colorBin("YlOrRd", domain = risk_soc_wgs84$risk, bins = bins)
+
+island_labels <- paste0(
+  "Island Name:"
+  , risk_soc_wgs84$island_name
+  , "<br>"
+  , "Soc Vul"
+  , risk_soc_wgs84$social_vul
+)
+
+labels <- sprintf(
+  "<strong>%s</strong><br/><strong>Social Vul </strong>%g ",
+risk_soc_wgs84$island_name, risk_soc_wgs84$social_vul) %>% 
+lapply(htmltools::HTML)
+
+## Normal choropleth plotting percentile of risk
+leaflet() %>%
+    addProviderTiles("CartoDB.Positron") %>%
+    setView(lat=38.1, lng=-121.8, zoom=10) %>% 
+    addPolygons(data = risk_soc_wgs84, 
+                weight = 2,
+                fillColor = ~pal(risk_percentile),
+                opacity = 1,
+                color = "white",
+                fillOpacity = 0.7,
+                label = labels)
+
+## make it bivarite
+
+biscal_wgs84 <- biscale_data %>% 
+  st_transform(crs = 4326)
+
+npal2 <- colorFactor(
+  palette =  ("Greens"),
+  domain = biscal_wgs84$bi_class)
+
+leaflet() %>%
+    addProviderTiles("CartoDB.Positron") %>%
+    setView(lat=38.1, lng=-121.8, zoom=10) %>% 
+    addPolygons(data = biscal_wgs84, 
+                weight = 2,
+                fillColor = ~npal2(bi_class),
+                opacity = 1,
+                color = "white",
+                fillOpacity = 0.7,
+                label = labels) %>% 
+  addBivariateChoropleth(
+    map_data = biscal_wgs84,
+    var1_name = risk,
+    var2_name = social_vul,
+    ntiles= 3,
+    var1_label = "Risk",
+    var2_label = "Soc Vul",
+    region_name = "Island Name",
+    weight = 1,
+    fillOpacity = 0.7,
+    color = "grey",
+    highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                 weight = 2,
+                                                 opacity = 1))
+                                                 
+
+```
+
+
+
+```{r}
+## test plot - This works!!!
+library(bivariatechoropleths)
+library(leaflet)
+
+leaflet::leaflet() %>%
+   leaflet::addTiles() %>%
+   bivariatechoropleths::addBivariateChoropleth(
+     map_data = bivariatechoropleths::renfrew_county,
+     var1_name = pop_2016,
+     var2_name = median_household_income_2015,
+     ntiles= 3,
+     var1_label = "Population, 2016",
+     var2_label = "Median Household\nIncome, 2015",
+     region_name = "CSDNAME",
+     weight = 1,
+     fillOpacity = 0.7,
+     color = "grey",
+     highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                  weight = 2,
+                                                  opacity = 1)) 
+```
+
+ 
+

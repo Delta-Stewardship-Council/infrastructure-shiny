@@ -58,7 +58,7 @@ levee_area_data <- levee_area %>%
 
 ## Text for popup 
 popup_text <- paste(
-  "<span style='font-size: 120%'><strong>Risk: ", levee_area_data$risk,"</strong></span><br/>", 
+  "<span style='font-size: 120%'><strong>Risk: ", levee_area_data$risk_scaled_percent,"</strong></span><br/>", 
   "<strong>", levee_area_data$LMA,", ", levee_area_data$island_tract, " Island", "</strong><br/>") %>% 
   # "Census Block Group ID: ", sovi@data$'Census Block Group ID', "<br/>",
   # "Est. median household income: ", dollar(sovi@data$MHHI), "<br/>", 
@@ -89,10 +89,11 @@ function(input, output, session) {
   })
   
   
-  # Responsive description text and data citations
+## Responsive description for each variable shown in side bar
+
   observe({
     textBy <- input$color
-    if (textBy == "risk") {
+    if (textBy == "risk_scaled_percent") {
       output$selected_var <- renderUI({
         tags$div(
           "Description of Risk",
@@ -171,148 +172,107 @@ function(input, output, session) {
   }
 
     
-    # else if (textBy == "% of households that include someone with a disability") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "People with disabilities are less likely to be able to evacuate on their own, and are therefore more vulnerable
-    #     to impacts from climate change",
-    #       tags$a("(US Global Change Research Program, 2016).", href="https://health2016.globalchange.gov/extreme-events", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=B22010&tid=ACSDT5Y2017.B22010&hidePreview=false", target="_blank"))
-    #   })
-    # }
-    # 
-    # else if (textBy == "% of rented housing units") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Renters have fewer resources to repair damage or procure temporary and replacement housing
-    #     in the event of a natural disaster",
-    #       tags$a("(Cutter et al. 2003),", href="https://onlinelibrary.wiley.com/doi/abs/10.1111/1540-6237.8402002", target="_blank"),
-    #       "and face increased exposure and reduced adaptive capacity to hazards like wildfire smoke",
-    #       tags$a("(Stone et al. 2019).", href="https://ww3.arb.ca.gov/smp/progdev/pubeduc/wfgv8.pdf", target="_blank"),
-    #       "In the case of extreme heat events, renters without air conditioning may not have the option of installing it,
-    #     or may not be able to afford higher energy costs associated with using AC during peak demand",
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=B25003&tid=ACSDT5Y2017.B25003&hidePreview=false", target="_blank"))
-    #   })
-    # }
-    # 
-    # else if (textBy == "% of households with no vehicle access") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Households without access to a vehicle are less able to evacuate and are therefore more vulnerable.",
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=B25044&tid=ACSDT1Y2018.B25044&hidePreview=false", target="_blank"))
-    #   })
-    # }
-    # 
-    # 
-    # else if (textBy == "% of households with limited English proficiency") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Linguistically isolated households are more vulnerable to climate change impacts, such as flooding and extreme 
-    #     heat events, because they have more limited access to or understanding 
-    #     of emergency alerts, health warnings, and safety information than the general population",
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=C16002&tid=ACSDT5Y2017.C16002&hidePreview=false", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else if (textBy == "% of households with income <200% of the federal poverty line") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Low-income communities face a host of disadvantages that are compounded by climate change impacts,
-    #     such as higher baseline rates of chronic medical conditions that increase their sensitivity to environmental hazards
-    #     and fewer resources with which to recover from natural disasers",
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=C17002&tid=ACSDT5Y2017.C17002&hidePreview=false", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else if (textBy == "% of babies born at low birth weight") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Low birth weights are indicative of increased stressed levels in pregnant people, and are often an impact 
-    #     of hazards such as flooding, extreme heat, and wildfire smoke. It is also a useful proxy for overall
-    #     community health and as a predictor of future health conditions",
-    #       tags$a("(US Global Change Research Program, 2016).", href="https://health2016.globalchange.gov/extreme-events", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("CalEnviroScreen 3.0", href="https://oehha.ca.gov/calenviroscreen/report/calenviroscreen-30", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else if (textBy == "Asthma ER visits per 10k") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Individuals suffering from asthma are more sensitive to air pollution caused by climate change 
-    #     hazards such as extreme heat and wildfire smoke",
-    #       tags$a("(Stone et al. 2019),", href="https://ww3.arb.ca.gov/smp/progdev/pubeduc/wfgv8.pdf", target="_blank"),
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("CalEnviroScreen 3.0", href="https://oehha.ca.gov/calenviroscreen/report/calenviroscreen-30", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else if (textBy == "Heart-attack ER visits per 10k") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Individuals suffering from cardiovascular disease are more sensitive to air pollution caused by climate change 
-    #     hazards such as extreme heat and wildfire smoke",
-    #       tags$a("(Stone et al. 2019),", href="https://ww3.arb.ca.gov/smp/progdev/pubeduc/wfgv8.pdf", target="_blank"),
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("CalEnviroScreen 3.0", href="https://oehha.ca.gov/calenviroscreen/report/calenviroscreen-30", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else if (textBy == "% uninsured households") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "Individuals that lack health insurance may face more difficulty 
-    #     accessing care for conditions caused or exacerbated by climate change impacts,
-    #     such as extreme heat, exposure to floodwaters, or wildfire smoke",
-    #       tags$a("(CA Office of Planning and Research, 2017).", href="https://www.opr.ca.gov/planning/icarp/resilient-ca.html", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", tags$a("US Census Bureau", href="https://data.census.gov/cedsci/table?q=B27001&tid=ACSDT1Y2018.B27001&hidePreview=false", target="_blank")
-    #     )
-    #   })
-    # }
-    # 
-    # else { #(textBy == "Region of low food access") {
-    #   output$selected_var <- renderUI({
-    #     tags$div(
-    #       "A 'food desert' is defined as a region where at least 100 households are more than a half mile
-    #     from the nearest supermarket and have no access to a vehicle, or where at least 500 people or 33% 
-    #     of the population live more than 20 miles from the nearest supermarket. Food deserts are just one 
-    #     measure of food insecurity, which has been identified as a significant contributor to
-    #     health outcomes.",
-    #       tags$a("(CA Healthy Places Index)", href="https://healthyplacesindex.org/data-reports/", target="_blank"),
-    #       tags$br(),
-    #       tags$br(),
-    #       "Data Source: ", 
-    #       tags$a("USDA Food Access Research Atlas", href="https://www.ers.usda.gov/data-products/food-access-research-atlas/download-the-data.aspx", target="_blank")
-    #     )
-    #   })
   
-  
+## Interactive and responsive polygons in map
+
+# observe({
+#   colorBy <- input$color
+#   
+#   if (colorBy == "risk_scaled_percent") {
+#     colorData <- levee_area_data$colorBy
+#     pal <- colorNumeric("viridis", colorData)
+#   }
+#   
+#   else if (colorBy == "Select Parameter") {
+#     ifelse(levee_area_data$risk_scaled_percent < 1, " ", " ")
+#     pal <- colorNumeric("transparent", colorData)
+#   }
+#   
+#   else {
+#     colorData <- levee_area_data$colorBy
+#     pal <- colorNumeric("viridis", colorData)
+# 
+#   }
+#   
+#   
+#   
+#   
+#   # add indicator data and legend    
+#   leafletProxy("map", 
+#                data = levee_area_data) %>%
+#     clearShapes() %>% # removes appearance of previously selected indicator polygons
+#     addPolygons(data=levee_area_data, 
+#                 fillColor=pal(colorData), 
+#                 group = "continuous",
+#                 stroke=TRUE,
+#                 fillOpacity = 0.6, 
+#                 color="black", # polygon border color
+#                 weight=0.8, # polygon border weight
+#                 popup = popup_text) %>% 
+#                 # group = "Indicator Data") %>% 
+#     addLegend("bottomright", 
+#               pal=pal, 
+#               values=colorData, 
+#               title=colorBy,
+#               layerId="colorLegend", 
+#               labFormat = labelFormat(prefix = "", 
+#                                       suffix = "", 
+#                                       between = " - ", 
+#                                       digits = 0)
+#     ) %>%
+#     
+#     # add location markers
+#     addMarkers(data = points(), group="Location Pin") 
+#     
+#   })
+#     
+    # # add feature shapefiles
+    # ## Delta boundary
+    # addPolygons(data=delta_sm, 
+    #             fill=F, 
+    #             stroke=T, 
+    #             color="black", # polygon border color
+    #             weight=3, # polygon border weight
+    #             group = "Delta + Suisun Marsh Boundary") %>% 
+    # ## County boundaries 
+    # addPolygons(data=delta_counties, 
+    #             fillColor = "transparent", 
+    #             stroke=T, 
+    #             color="yellow", # polygon border color
+    #             weight=3, # polygon border weight
+    #             label=paste(delta_counties@data$NAME_UCASE),
+    #             group = "County Boundaries") %>% 
+    # 
+    # ## Watersheds 
+    # addPolygons(data=watersheds, 
+    #             fillColor = "transparent", 
+    #             stroke=T, 
+    #             color="#08306B", # polygon border color
+    #             weight=3, # polygon border weight
+    #             label=paste(watersheds@data$Name),
+    #             group = "Watersheds") %>% 
+    ## Vegetation
+    #    addPolygons(data=delta_veg, 
+    #                fillColor = v_pal, 
+    #                stroke=T, 
+    #                color="black", # polygon border color
+    #                weight=3, # polygon border weight
+    #                label=paste(delta_veg@data$`Vegetation Type`),
+    #                group = "Vegetation Cover") %>% 
+    
+#     # add layer control panel 
+#     addLayersControl(
+#       #    baseGroups = c("Basemap"),
+#       overlayGroups = c("Indicator Data","Delta + Suisun Marsh Boundary", "Location Pin", "Watersheds", "County Boundaries"), #, "Vegetation Cover"),
+#       options = layersControlOptions(collapsed = FALSE)
+#     ) %>% 
+#     hideGroup("Watersheds") %>% 
+#     hideGroup("County Boundaries")
+#   #     hideGroup("Vegetation Cover")
+#   
+#   
+# })
+
 
 
 

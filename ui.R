@@ -10,7 +10,7 @@ library(leaflet)
 
 vars <- c(
   "Select Parameter",
-  "Total Risk" = "risk",
+  "Risk Percent" = "risk_scaled_percent",
   "Probability of flooding" = "prob_flood",
   "Levee condition" = "levee_cond",
   "Income" = "income",
@@ -84,7 +84,7 @@ navbarPage("Delta Infrastructure: RAND Model", id="nav",
                     ),
                     
                     tags$div(id="cite",
-                             tags$em('This map was created in a part of a collaboration with the National Center for Ecological Analysis and Synthesys (NCEAS) and The Delta Stwearship Council, 2023')
+                             tags$em('This App was created in a part of a collaboration with the National Center for Ecological Analysis and Synthesys (NCEAS) and The Delta Stwearship Council, 2023')
                     )
            ), # EO tabPanel Interactive map
            
