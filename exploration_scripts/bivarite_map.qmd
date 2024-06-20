@@ -50,6 +50,8 @@ levee_area_data <- levee_area %>%
   mutate(island_tract = paste0("island_", 1:139)) %>% 
   left_join(rand_mock, by = "island_tract")
 
+class(levee_area_data)
+
 colnames(levee_area_data)
 
 ```
@@ -59,6 +61,8 @@ colnames(levee_area_data)
 risk_soc_data <- levee_area_data %>% 
   select(island_name = LMA, island_tract, social_vul, risk, risk_scaled_percent)
 
+
+class(risk_soc_data)
 colnames(risk_soc_data)
 ```
  

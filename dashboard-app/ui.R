@@ -1,8 +1,14 @@
+#................Input Variables.....................
+
+impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", "geometry"))
+
+
+
 # ................Dashboard Header.....................
 
 header <- dashboardHeader(
   # title ----
-  title = "Bay-Delta Levee Risk of Failur and Socio Economic Variables",
+  title = "Bay-Delta Levee Risk of Failur and Socio-Economic Variables",
   titleWidth = 600
   
   
@@ -56,14 +62,46 @@ body <- dashboardBody(
             
             # Map fluidRow ----
             fluidRow(
-              
-              # input box ----
+              # map input box ----
               box(width = 4,
-                  "dropdownMenu Input goes here"
+                  title = tags$strong("Select impact and social vulnerability inputs:"),
                   
-                  )
+                  # selectInput ----
+                  selectInput(
+                    inputId = "map_impact_layer_input",
+                    label = "Select an Impact Layer:",
+                    choices = impact_layers
+                    
+                  ) # END selectInput
+                  
+                  ), # END selectBox input box
               
-            ) # END Map fluid row
+              # leaflet map box ----
+              box(width = 8,
+                  
+                  "LeafletOutput goes here"
+                  
+                  ) # END leaflet box
+              
+            ), # END Map fluid row
+            
+            # Plot FluidRow
+            fluidRow(
+              # plot input box
+              box(width = 4,
+                  
+                  "checkbox Input here"
+                 
+                   ), # END checkbox input
+              
+              # plot box ----
+              box(width = 8,
+                  
+                  "PlotOutput goes here"
+                  
+                  ) # END plotBox
+              
+            ) # END plot fluidRow
             
     ), # END Maps and Plots tabItem
     

@@ -15,4 +15,4 @@ levee_area_data <- levee_area %>%
   left_join(rand_mock, by = "island_tract")
 
 # save data to dashboard folder
-write_csv(levee_area_data, here::here("dashboard-app", "data", "mock-data-levee-area.csv"))
+write_sf(levee_area_data, here::here("dashboard-app", "data", "mock-data-levee-area.shp"))
