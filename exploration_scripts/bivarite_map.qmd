@@ -18,7 +18,7 @@ Based on the discussion with the group (meetng on 05/16) there are three layers 
  The second component of this project is including the social vulnerability aspect. This will be calculated by combining different social variables and getting to one indicator. Once we have this data and all the layers that goes into it, we can decide hoe disagregate do we want to present the information.
  
  
- For the purpose of this exercise we will try mappin Risk and Soc Vulnerability in one map.We can then expand the shiny app to be able to choose different layers (is possible).
+ For the purpose of this exercise we will try mapping Risk and Soc Vulnerability in one map.We can then expand the shiny app to be able to choose different layers (is possible).
  
  
 ## Step 1: Getting mock data ready for plotting
@@ -42,13 +42,14 @@ library(leafpop)
 
  Read Data
 ```{r}
-levee_area <- read_sf(here("mock_data", "levees_shapefiles", "fixedLevees.shp"))
 
-rand_mock <- read_csv(here("mock_data", "mock_rand_data.csv"))
+prop_fail_area <- read_sf(here("dashboard-app", "data", "mock_prob_fail_levee_area.shp")) %>% 
+  mutate(island_tract = paste0("island_", 1:77)) 
 
-levee_area_data <- levee_area %>% 
-  mutate(island_tract = paste0("island_", 1:139)) %>% 
-  left_join(rand_mock, by = "island_tract")
+soc_vul_index <- read_csv(here("dashboard-app", "data", "mock_social_vul_index.csv"))
+
+levee_area_data <- prop_fail_area %>% 
+  left_join(soc_vul_index, by = "island_tract")
 
 class(levee_area_data)
 
@@ -56,20 +57,11 @@ colnames(levee_area_data)
 
 ```
  
- Selecting relevant data
-```{r}
-risk_soc_data <- levee_area_data %>% 
-  select(island_name = LMA, island_tract, social_vul, risk, risk_scaled_percent)
-
-
-class(risk_soc_data)
-colnames(risk_soc_data)
-```
  
  Preparing data into biscale object
 ```{r}
-biscale_data <- bi_class(risk_soc_data,
-                         x = risk,
+biscale_data <- bi_class(levee_area_data,
+                         x = lev_flr,
                          y = social_vul,
                          style = "quantile",
                          dim = 3)
@@ -87,7 +79,7 @@ bi_map <- ggplot()+
           size = 0.1,
           show.legend = FALSE)+
   bi_scale_fill(pal = "GrPink", dim = 3) +
-  labs(title = "Risk of levee failure and social vulnerability \n on the Delta [MOCK DATA]")+
+  labs(title = "Probability of levee failure and social vulnerability \n on the Delta [MOCK DATA]")+
   bi_theme()
 
 bi_map
@@ -95,7 +87,7 @@ bi_map
 ## legend
 legend <- bi_legend(pal = "GrPink",
                     dim = 3,
-                    xlab = "Higher Risk",
+                    xlab = "Higher Prob Fail",
                     ylab = "Higher Social Vul",
                     size = 8)
 
@@ -111,36 +103,36 @@ final_plot
 
 ## Mapping with leaflet
 ```{r}
-st_crs(risk_soc_data) #NAD83 / California Albers
+st_crs(levee_area_data) #NAD83 / California Albers
 
-risk_soc_wgs84 <- risk_soc_data %>% 
-  st_transform(crs = 4326) %>% 
-  mutate(risk_percentile = percent_rank(risk))
+fail_soc_wgs84 <- levee_area_data %>% 
+  st_transform(crs = 4326) 
+  # mutate(risk_percentile = percent_rank(risk))
 
 bins <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
 
-pal <- colorBin("YlOrRd", domain = risk_soc_wgs84$risk, bins = bins)
+pal <- colorBin("YlOrRd", domain = fail_soc_wgs84$lev_flr, bins = bins)
 
 island_labels <- paste0(
   "Island Name:"
-  , risk_soc_wgs84$island_name
+  , fail_soc_wgs84$lma
   , "<br>"
   , "Soc Vul"
-  , risk_soc_wgs84$social_vul
+  , fail_soc_wgs84$social_vul
 )
 
 labels <- sprintf(
   "<strong>%s</strong><br/><strong>Social Vul </strong>%g ",
-risk_soc_wgs84$island_name, risk_soc_wgs84$social_vul) %>% 
+fail_soc_wgs84$lma, fail_soc_wgs84$social_vul) %>% 
 lapply(htmltools::HTML)
 
 ## Normal choropleth plotting percentile of risk
 leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>%
     setView(lat=38.1, lng=-121.8, zoom=10) %>% 
-    addPolygons(data = risk_soc_wgs84, 
+    addPolygons(data = fail_soc_wgs84, 
                 weight = 2,
-                fillColor = ~pal(risk_percentile),
+                fillColor = ~pal(lev_flr),
                 opacity = 1,
                 color = "white",
                 fillOpacity = 0.7,
@@ -167,10 +159,10 @@ leaflet() %>%
                 label = labels) %>% 
   addBivariateChoropleth(
     map_data = biscal_wgs84,
-    var1_name = risk,
-    var2_name = social_vul,
+    var1_name = lev_flr,
+    var2_name = social_vul_perc,
     ntiles= 3,
-    var1_label = "Risk",
+    var1_label = "Prob of Failure",
     var2_label = "Soc Vul",
     region_name = "Island Name",
     weight = 1,
