@@ -30,6 +30,7 @@ library(dplyr)
 library(sf)
 library(ggplot2)
 library(readr)
+library(stringr)
 library(here)
 library(biscale)
 library(cowplot)
@@ -49,7 +50,10 @@ prop_fail_area <- read_sf(here("dashboard-app", "data", "mock_prob_fail_levee_ar
 soc_vul_index <- read_csv(here("dashboard-app", "data", "mock_social_vul_index.csv"))
 
 levee_area_data <- prop_fail_area %>% 
-  left_join(soc_vul_index, by = "island_tract")
+  left_join(soc_vul_index, by = "island_tract") %>% 
+  mutate(fail_percentile = percent_rank(lev_flr),
+         soc_vul_percentile = percent_rank(social_vul),
+         lma = str_to_title(lma))
 
 class(levee_area_data)
 
@@ -61,8 +65,8 @@ colnames(levee_area_data)
  Preparing data into biscale object
 ```{r}
 biscale_data <- bi_class(levee_area_data,
-                         x = lev_flr,
-                         y = social_vul,
+                         x = fail_percentile,
+                         y = soc_vul_percentile,
                          style = "quantile",
                          dim = 3)
 ```
@@ -99,6 +103,46 @@ final_plot
 
 ```
 
+## Adding base map
+```{r}
+# 1. Transform CRS
+biscale_3857 <- st_transform(biscale_data, 
+                         crs = 3857)
+
+st_crs(biscale_3857)
+
+
+## map with base map --> Not aligning, base map looks either very zoomed in or very zoomed out
+bi_map_base <- ggplot(data = biscale_3857)+
+  ggspatial::annotation_map_tile(type = "osm", zoom = 3)+
+  geom_sf(mapping = aes(fill = bi_class),
+          color = "white",
+          size = 0.1,
+          show.legend = FALSE)+
+  bi_scale_fill(pal = "GrPink", dim = 3) +
+  labs(title = "Probability of levee failure and social vulnerability \n on the Delta [prototype]")+
+  bi_theme()
+
+bi_map_base
+
+## legend
+legend <- bi_legend(pal = "GrPink",
+                    dim = 3,
+                    xlab = "Higher Prob Fail",
+                    ylab = "Higher Social Vul",
+                    size = 8)
+
+final_plot_base <- ggdraw() +
+  draw_plot(bi_map_base, 0, 0, 1, 1) +
+  draw_plot(legend, 0.2, .65, 0.2, 0.2)
+
+final_plot_base
+
+
+
+```
+
+
 
 
 ## Mapping with leaflet
@@ -107,11 +151,10 @@ st_crs(levee_area_data) #NAD83 / California Albers
 
 fail_soc_wgs84 <- levee_area_data %>% 
   st_transform(crs = 4326) 
-  # mutate(risk_percentile = percent_rank(risk))
 
 bins <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
 
-pal <- colorBin("YlOrRd", domain = fail_soc_wgs84$lev_flr, bins = bins)
+pal <- colorBin("YlOrRd", domain = fail_soc_wgs84$fail_percentile, bins = bins)
 
 island_labels <- paste0(
   "Island Name:"
@@ -132,7 +175,7 @@ leaflet() %>%
     setView(lat=38.1, lng=-121.8, zoom=10) %>% 
     addPolygons(data = fail_soc_wgs84, 
                 weight = 2,
-                fillColor = ~pal(lev_flr),
+                fillColor = ~pal(fail_percentile),
                 opacity = 1,
                 color = "white",
                 fillOpacity = 0.7,
@@ -150,7 +193,7 @@ npal2 <- colorFactor(
 leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>%
     setView(lat=38.1, lng=-121.8, zoom=10) %>% 
-    addPolygons(data = biscal_wgs84, 
+    addPolygons(data = fail_soc_wgs84, 
                 weight = 2,
                 fillColor = ~npal2(bi_class),
                 opacity = 1,
@@ -158,19 +201,39 @@ leaflet() %>%
                 fillOpacity = 0.7,
                 label = labels) %>% 
   addBivariateChoropleth(
-    map_data = biscal_wgs84,
-    var1_name = lev_flr,
-    var2_name = social_vul_perc,
+    map_data = fail_soc_wgs84,
+    var1_name = fail_percentile,
+    var2_name = soc_vul_percentile,
     ntiles= 3,
     var1_label = "Prob of Failure",
     var2_label = "Soc Vul",
-    region_name = "Island Name",
+    region_name = "lma",
     weight = 1,
     fillOpacity = 0.7,
     color = "grey",
     highlightOptions = leaflet::highlightOptions(color = "orange",
                                                  weight = 2,
                                                  opacity = 1))
+
+## This map works!!!
+
+leaflet::leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  setView(lat=38.1, lng=-121.8, zoom=9) %>% 
+   bivariatechoropleths::addBivariateChoropleth(
+     map_data = fail_soc_wgs84,
+     var1_name = fail_percentile,
+     var2_name = soc_vul_percentile,
+     ntiles= 3,
+     var1_label = "Probability of Failure",
+     var2_label = "Social Vulnerability Index",
+     region_name = "lma",
+     weight = 1,
+     fillOpacity = 0.7,
+     color = "grey",
+     highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                  weight = 2,
+                                                  opacity = 1)) 
                                                  
 
 ```
