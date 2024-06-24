@@ -1,7 +1,9 @@
 # LOAD LIBRARIES ----
 library(shiny)
 library(shinydashboard)
+library(shinycssloaders)
 library(tidyverse)
+library(sf)
 library(leaflet)
 library(bivariatechoropleths)
 

@@ -1,6 +1,7 @@
 #................Input Variables.....................
 
-impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", "geometry"))
+# impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", "geometry"))
+impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overall Risk")
 
 
 
@@ -8,7 +9,7 @@ impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", 
 
 header <- dashboardHeader(
   # title ----
-  title = "Bay-Delta Levee Risk of Failur and Socio-Economic Variables",
+  title = "Scaramento-San Joaquin Delta: Risk of Levee Failure",
   titleWidth = 600
   
   
@@ -63,7 +64,7 @@ body <- dashboardBody(
             # Map fluidRow ----
             fluidRow(
               # map input box ----
-              box(width = 4,
+              box(width = 3,
                   title = tags$strong("Select impact and social vulnerability inputs:"),
                   
                   # selectInput ----
@@ -77,9 +78,14 @@ body <- dashboardBody(
                   ), # END selectBox input box
               
               # leaflet map box ----
-              box(width = 8,
+              box(width = 9,
                   
-                  "LeafletOutput goes here"
+                  title = tags$strong("Risk of Levee Failure and Social Vulnerability"),
+                  
+                  # leaflet output ----
+                  leafletOutput(outputId = "bichoropleth_map") %>% 
+                    withSpinner(type = 1, color = "#4287f5")
+                  
                   
                   ) # END leaflet box
               
@@ -88,14 +94,14 @@ body <- dashboardBody(
             # Plot FluidRow
             fluidRow(
               # plot input box
-              box(width = 4,
+              box(width = 3,
                   
                   "checkbox Input here"
                  
                    ), # END checkbox input
               
               # plot box ----
-              box(width = 8,
+              box(width = 9,
                   
                   "PlotOutput goes here"
                   
