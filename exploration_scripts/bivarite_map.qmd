@@ -37,6 +37,8 @@ library(cowplot)
 library(leaflet)
 library(mapview)
 library(leafpop)
+library(bivariatechoropleths)
+
 
 ```
 
@@ -152,9 +154,6 @@ st_crs(levee_area_data) #NAD83 / California Albers
 fail_soc_wgs84 <- levee_area_data %>% 
   st_transform(crs = 4326) 
 
-bins <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
-
-pal <- colorBin("YlOrRd", domain = fail_soc_wgs84$fail_percentile, bins = bins)
 
 island_labels <- paste0(
   "Island Name:"
@@ -169,7 +168,7 @@ labels <- sprintf(
 fail_soc_wgs84$lma, fail_soc_wgs84$social_vul) %>% 
 lapply(htmltools::HTML)
 
-## Normal choropleth plotting percentile of risk
+## Normal choropleth plotting percentile of prob of fail
 leaflet() %>%
     addProviderTiles("CartoDB.Positron") %>%
     setView(lat=38.1, lng=-121.8, zoom=10) %>% 
@@ -181,45 +180,11 @@ leaflet() %>%
                 fillOpacity = 0.7,
                 label = labels)
 
-## make it bivarite
-
-biscal_wgs84 <- biscale_data %>% 
-  st_transform(crs = 4326)
-
-npal2 <- colorFactor(
-  palette =  ("Greens"),
-  domain = biscal_wgs84$bi_class)
-
-leaflet() %>%
-    addProviderTiles("CartoDB.Positron") %>%
-    setView(lat=38.1, lng=-121.8, zoom=10) %>% 
-    addPolygons(data = fail_soc_wgs84, 
-                weight = 2,
-                fillColor = ~npal2(bi_class),
-                opacity = 1,
-                color = "white",
-                fillOpacity = 0.7,
-                label = labels) %>% 
-  addBivariateChoropleth(
-    map_data = fail_soc_wgs84,
-    var1_name = fail_percentile,
-    var2_name = soc_vul_percentile,
-    ntiles= 3,
-    var1_label = "Prob of Failure",
-    var2_label = "Soc Vul",
-    region_name = "lma",
-    weight = 1,
-    fillOpacity = 0.7,
-    color = "grey",
-    highlightOptions = leaflet::highlightOptions(color = "orange",
-                                                 weight = 2,
-                                                 opacity = 1))
-
-## This map works!!!
+## Using example code below to make leaflet map bivariate
 
 leaflet::leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
-  setView(lat=38.1, lng=-121.8, zoom=9) %>% 
+  setView(lat=38.2, lng=-121.7, zoom=9) %>% 
    bivariatechoropleths::addBivariateChoropleth(
      map_data = fail_soc_wgs84,
      var1_name = fail_percentile,
@@ -241,11 +206,9 @@ leaflet::leaflet() %>%
 
 
 ```{r}
-## test plot - This works!!!
-library(bivariatechoropleths)
-library(leaflet)
+## Bivariate choroplth example code
 
-leaflet::leaflet() %>%
+leaflet::leaflet() %>% 
    leaflet::addTiles() %>%
    bivariatechoropleths::addBivariateChoropleth(
      map_data = bivariatechoropleths::renfrew_county,
