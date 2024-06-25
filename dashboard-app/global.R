@@ -2,10 +2,12 @@
 library(shiny)
 library(shinydashboard)
 library(shinycssloaders)
+library(shinyWidgets)
 library(tidyverse)
 library(sf)
 library(leaflet)
 library(bivariatechoropleths)
+library(DT)
 
 
 # READ DATA ----
