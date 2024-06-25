@@ -25,3 +25,10 @@ levee_area_data <- prop_fail_area %>%
 fail_soc_wgs84 <- levee_area_data %>% 
   st_transform(crs = 4326) 
 
+data_explorer_table <- levee_area_data %>% 
+  select(island_name = lma,
+         levee_failure = lev_flr,
+         social_vul,
+         prob_levee_failure_prec = fail_percentile,
+         soc_vul_percentile)
+

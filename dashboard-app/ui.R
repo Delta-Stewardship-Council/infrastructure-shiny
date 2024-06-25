@@ -137,7 +137,8 @@ body <- dashboardBody(
     # data exploration tabItem ----
     tabItem(tabName = "dataExploration",
             
-            "Interactive table with data goes here"
+                DT::dataTableOutput(outputId = "interactive_table_output")
+
       
     ) #END data exploration tabItem
     

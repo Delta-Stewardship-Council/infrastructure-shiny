@@ -56,5 +56,14 @@ server <- function(input, output){
   }) # END render overleyPlot
   
   
+  # data explorer interactive table ----
+  output$interactive_table_output <- DT::renderDataTable(
+    
+    DT::datatable(data_explorer_table,
+                  options = list(paging=FALSE),
+                  rownames = FALSE)
+  )
+  
+  
   
 } # END Server
