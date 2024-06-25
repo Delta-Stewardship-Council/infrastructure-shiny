@@ -24,4 +24,37 @@ server <- function(input, output){
     
   }) # END of leaflet map
   
-}
+  
+  # filter for levee island ----
+  levee_island_df <- reactive({
+    levee_area_data %>% 
+    filter(lma %in% input$levee_island_input)
+  }) #END reactive levee island data frame
+  
+  # render overlay barplot ----
+  output$risk_soc_vul_overlay_barplot <- renderPlot({
+    
+    ggplot(levee_island_df()) +
+      geom_col(aes(x = lma,
+                   y = soc_vul_percentile,
+                   fill = "Social Vulnerability Index"),
+               alpha = 0.6,  width = 0.5) + #fill = "#BE64AC",
+      geom_col(aes(x = lma,  
+                   y = fail_percentile,
+                   fill = "Probability of Failure"), 
+               width = 0.3) + #fill = "#59C8C8",
+      coord_flip()+
+      labs(x = "Levee Island", 
+           y = "Percentile",
+           fill = "Indicator") +
+      scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                         expand=c(0, 0))+
+      theme_bw()+
+      scale_fill_manual(values = c("#59C8C8", "#BE64AC"))+
+      theme(legend.position = "top",
+            text = element_text(size=22))
+  }) # END render overleyPlot
+  
+  
+  
+} # END Server

@@ -2,7 +2,9 @@
 
 # impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", "geometry"))
 impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overall Risk")
+soc_vul_layers <- c("Social Vulnerability Index", "Income", "Education", "Race", "Tribal Boundaries", "Drinking Water Contaminants", "Traffic Impacts", "Housing Burden")
 
+levee_island <- sort(unique(levee_area_data$lma))
 
 
 # ................Dashboard Header.....................
@@ -67,13 +69,21 @@ body <- dashboardBody(
               box(width = 3,
                   title = tags$strong("Select impact and social vulnerability inputs:"),
                   
-                  # selectInput ----
+                  # Impact selectInput ----
                   selectInput(
                     inputId = "map_impact_layer_input",
                     label = "Select an Impact Layer:",
                     choices = impact_layers
                     
-                  ) # END selectInput
+                  ), # END Impact selectInput
+                  
+                  # Soc VUl select input
+                  selectInput(
+                    inputId = "map_soc_vul_layer_input",
+                    label = "Select an indicator:",
+                    choices = soc_vul_layers
+                  
+                  ), # END Soc Vul Select input
                   
                   ), # END selectBox input box
               
@@ -93,17 +103,22 @@ body <- dashboardBody(
             
             # Plot FluidRow
             fluidRow(
-              # plot input box
+              # plot island pickerinput box
               box(width = 3,
                   
-                  "checkbox Input here"
+                  pickerInput(inputId = "levee_island_input", label = "Select an island(s):",
+                              choices = levee_island,
+                              selected = c("Atlas Tract", "Bacon Island", "Bethel Island"),
+                              options = pickerOptions(actionsBox = TRUE),
+                              multiple = TRUE), # END island pickerInput
                  
                    ), # END checkbox input
               
               # plot box ----
               box(width = 9,
                   
-                  "PlotOutput goes here"
+                  # overlay barplot output ----
+                  plotOutput(outputId = "risk_soc_vul_overlay_barplot")
                   
                   ) # END plotBox
               
