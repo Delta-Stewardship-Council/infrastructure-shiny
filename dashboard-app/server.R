@@ -2,6 +2,7 @@
 
 server <- function(input, output){
   
+  # render leaflet map ----
   output$bichoropleth_map <- renderLeaflet({
     # create leaflet bichoropleth
     leaflet::leaflet() %>%
@@ -62,7 +63,7 @@ server <- function(input, output){
     DT::datatable(data_explorer_table,
                   options = list(paging=FALSE),
                   rownames = FALSE)
-  )
+  ) # END data explorer interactive table
   
   
   

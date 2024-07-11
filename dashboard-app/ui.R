@@ -1,7 +1,8 @@
 #................Input Variables.....................
 
-# impact_layers <- setdiff(names(risk_soc_data), c("island_name", "island_tract", "geometry"))
+# defining vectors with names of map layers for user to choose from
 impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overall Risk")
+
 soc_vul_layers <- c("Social Vulnerability Index", "Income", "Education", "Race", "Tribal Boundaries", "Drinking Water Contaminants", "Traffic Impacts", "Housing Burden")
 
 levee_island <- sort(unique(levee_area_data$lma))
