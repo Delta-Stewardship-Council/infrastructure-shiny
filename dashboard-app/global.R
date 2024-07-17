@@ -11,10 +11,10 @@ library(DT)
 
 
 # READ DATA ----
-prop_fail_area <- read_sf("data/mock_prob_fail_levee_area.shp") %>% 
-  mutate(island_tract = paste0("island_", 1:77)) 
+prop_fail_area <- read_sf("data/probFailure/prob_fail_levee_area.shp") %>% 
+  mutate(island_tract = paste0("island_", 1:130))
 
-soc_vul_index <- read_csv("data/mock_social_vul_index.csv")
+soc_vul_index <- read_csv("data/mock/mock_social_vul_index.csv")
 
 levee_area_data <- prop_fail_area %>% 
   left_join(soc_vul_index, by = "island_tract") %>% 
@@ -30,5 +30,6 @@ data_explorer_table <- levee_area_data %>%
          levee_failure = lev_flr,
          social_vul,
          prob_levee_failure_prec = fail_percentile,
-         soc_vul_percentile)
+         soc_vul_percentile) %>% 
+  st_drop_geometry()
 
