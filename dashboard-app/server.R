@@ -3,7 +3,13 @@
 server <- function(input, output){
   
   # render leaflet map ----
-  output$bichoropleth_map <- renderLeaflet({
+  output$leaflet_map <- renderLeaflet({
+   
+    if(input$map_choice == "soc_vul_map"){
+      
+      
+    } 
+    
     # create leaflet bichoropleth
     leaflet::leaflet() %>%
       addProviderTiles("CartoDB.Positron") %>%

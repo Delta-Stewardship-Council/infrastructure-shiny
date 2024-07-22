@@ -70,6 +70,13 @@ body <- dashboardBody(
               box(width = 3,
                   title = tags$strong("Select impact and social vulnerability inputs:"),
                   
+                  # Checkbox input to select type of map ---
+                  checkboxGroupInput(
+                    inputId = "map_choice",
+                    label = "Select what information you to display:",
+                    choices = c("Social Vulnerability Map" = "soc_vul_map",
+                                "Impact Map" = "imapct_map")),
+                  
                   # Impact selectInput ----
                   selectInput(
                     inputId = "map_impact_layer_input",
@@ -94,7 +101,7 @@ body <- dashboardBody(
                   title = tags$strong("Risk of Levee Failure and Social Vulnerability"),
                   
                   # leaflet output ----
-                  leafletOutput(outputId = "bichoropleth_map") %>% 
+                  leafletOutput(outputId = "leaflet_map") %>% 
                     withSpinner(type = 1, color = "#4287f5")
                   
                   

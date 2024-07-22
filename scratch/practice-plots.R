@@ -4,14 +4,15 @@
 library(tidyverse)
 library(leaflet)
 library(sf)
+library(here)
 
 
 # ............ READ DATA....................
 
-prop_fail_area <- read_sf("dashboard-app/data/mock_prob_fail_levee_area.shp") %>% 
-  mutate(island_tract = paste0("island_", 1:77)) 
+prop_fail_area <- read_sf(here("dashboard-app/data/probFailure/prob_fail_levee_area.shp")) %>% 
+  mutate(island_tract = paste0("island_", 1:130)) 
 
-soc_vul_index <- read_csv("dashboard-app/data/mock_social_vul_index.csv")
+soc_vul_index <- read_csv("dashboard-app/data/mock/mock_social_vul_index.csv")
 
 
 #.............. DATA WRANGLING............................
@@ -29,7 +30,7 @@ fail_soc_wgs84 <- levee_area_data %>%
 
 # .............PRACTICE PLOTS.....................
 
-# leaflet map ----
+# leaflet bechoropleth map ----
 leaflet::leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%
   setView(lat=38.2, lng=-121.7, zoom=9) %>% 
@@ -47,6 +48,13 @@ leaflet::leaflet() %>%
     highlightOptions = leaflet::highlightOptions(color = "orange",
                                                  weight = 2,
                                                  opacity = 1)) 
+
+# leaflet social vul
+leaflet::leaflet(fail_soc_wgs84) %>%
+  addPolygons(data = fail_soc_wgs84,
+              color = soc_vul_percentile) %>% 
+  addProviderTiles("CartoDB.Positron") %>%
+  setView(lat=38.2, lng=-121.7, zoom=9)
 
 # bar plot ----
 
