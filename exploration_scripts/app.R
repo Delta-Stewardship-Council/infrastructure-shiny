@@ -1,3 +1,5 @@
+## Example of app where you can select and deselect polygons
+
 library(shiny)
 library(leaflet)
 library(sf)
