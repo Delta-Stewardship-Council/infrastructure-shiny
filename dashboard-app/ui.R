@@ -1,18 +1,15 @@
 #................Input Variables.....................
 
 # defining vectors with names of map layers for user to choose from
+##***CHECK IF WE NEED THIS***
 impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overall Risk")
-
-soc_vul_layers <- c("Social Vulnerability Index", "Income", "Education", "Race", "Tribal Boundaries", "Drinking Water Contaminants", "Traffic Impacts", "Housing Burden")
-
-levee_island <- sort(unique(levee_area_data$lma))
 
 
 # ................Dashboard Header.....................
 
 header <- dashboardHeader(
   # title ----
-  title = "Scaramento-San Joaquin Delta: Risk of Levee Failure",
+  title = "Delta Levee Risk Assesment Tool",
   titleWidth = 600
   
   
@@ -25,16 +22,16 @@ sidebar <- dashboardSidebar(
   
   # sidebar menu ----
   sidebarMenu(
-    menuItem(text = " Introduction",
-             tabName = "introduction",
-             icon = icon("star")),
-    
-    menuItem(text = " Maps and Plots",
-             tabName = "mapsPlots",
+    menuItem(text = " Maps",
+             tabName = "maps",
              icon = icon("map")),
     
-    menuItem(text = " Methods",
-             tabName = "methods",
+    menuItem(text = " Plots",
+             tabName = "plots",
+             icon = icon("chart-simple")),
+    
+    menuItem(text = "About",
+             tabName = "about",
              icon = icon("list")),
     
     menuItem(text = " Data Exploration",
@@ -54,93 +51,63 @@ body <- dashboardBody(
   # tabItems ----
   tabItems(
     
-    # Introduction tabItem ----
-    tabItem(tabName = "introduction",
-            
-            "INTRO TEXT GOES HERE"
-            
-            ), # END introduction tabItem
-    
-    # maps and plots tabItem ----
-    tabItem(tabName = "mapsPlots",
+    # maps tabItem ----
+    tabItem(tabName = "maps",
             
             # Map fluidRow ----
             fluidRow(
-              # map input box ----
-              box(width = 3,
-                  title = tags$strong("Select impact and social vulnerability inputs:"),
-                  
-                  # Checkbox input to select type of map ---
-                  checkboxGroupInput(
-                    inputId = "map_choice",
-                    label = "Select what information you to display:",
-                    choices = c("Social Vulnerability Map" = "soc_vul_map",
-                                "Impact Map" = "imapct_map")),
-                  
-                  # Impact selectInput ----
-                  selectInput(
-                    inputId = "map_impact_layer_input",
-                    label = "Select an Impact Layer:",
-                    choices = impact_layers
-                    
-                  ), # END Impact selectInput
-                  
-                  # Soc VUl select input
-                  selectInput(
-                    inputId = "map_soc_vul_layer_input",
-                    label = "Select an indicator:",
-                    choices = soc_vul_layers
-                  
-                  ), # END Soc Vul Select input
-                  
-                  ), # END selectBox input box
               
-              # leaflet map box ----
-              box(width = 9,
-                  
-                  title = tags$strong("Risk of Levee Failure and Social Vulnerability"),
+              # leaflet layer map box ----
+              box(width = 12,
+                  title = tags$strong("Map: Data layers by levee areas"),
                   
                   # leaflet output ----
-                  leafletOutput(outputId = "leaflet_map") %>% 
+                  leafletOutput(outputId = "map_data_layers") %>% 
                     withSpinner(type = 1, color = "#4287f5")
                   
                   
-                  ) # END leaflet box
+                  ) # END layers map box
               
-            ), # END Map fluid row
+            ), # END layers map fluid row
             
-            # Plot FluidRow
+            # Bichoropleth FluidRow
             fluidRow(
-              # plot island pickerinput box
+              # plot island pickerInput box
               box(width = 3,
                   
-                  pickerInput(inputId = "levee_island_input", label = "Select an island(s):",
-                              choices = levee_island,
-                              selected = c("Atlas Tract", "Bacon Island", "Bethel Island"),
-                              options = pickerOptions(actionsBox = TRUE),
-                              multiple = TRUE), # END island pickerInput
+                  # pickerInput(inputId = "levee_island_input", label = "Select an island(s):",
+                  #             choices = levee_island,
+                  #             selected = c("Atlas Tract", "Bacon Island", "Bethel Island"),
+                  #             options = pickerOptions(actionsBox = TRUE),
+                  #             multiple = TRUE), # END island pickerInput
                  
                    ), # END checkbox input
               
               # plot box ----
               box(width = 9,
                   
-                  # overlay barplot output ----
-                  plotOutput(outputId = "risk_soc_vul_overlay_barplot")
+                  # bichoropleth map output ----
+                  plotOutput(outputId = "map_bichoropleth")
                   
-                  ) # END plotBox
+                  ) # END bichoropleth map Box
               
-            ) # END plot fluidRow
+            ) # END bichoropleth map fluidRow
             
-    ), # END Maps and Plots tabItem
+    ), # END Maps tabItem
     
-    
-    # methods tabItem
-    tabItem(tabName = "methods",
+    # Plots tabItem ----
+    tabItem(tabName = "plots",
             
-            "METHODS INFORMATION GOES HERE"
+            "page under construction"
+            
+    ), # END Plots tabItem
+    
+    # about tabItem
+    tabItem(tabName = "about",
+            
+            "DESCRIPTION AND METHODS INFORMATION GOES HERE"
       
-    ), #END methods tabItem
+    ), #END about tabItem
     
     # data exploration tabItem ----
     tabItem(tabName = "dataExploration",

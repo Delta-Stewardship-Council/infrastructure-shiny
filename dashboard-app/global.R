@@ -14,7 +14,7 @@ library(DT)
 prop_fail_area <- read_sf("data/probFailure/prob_fail_levee_area.shp") %>% 
   mutate(island_tract = paste0("island_", 1:130))
 
-soc_vul_index <- read_csv("data/mock/mock_social_vul_index.csv")
+soc_vul_index <- st_read("/vsicurl/")
 
 levee_area_data <- prop_fail_area %>% 
   left_join(soc_vul_index, by = "island_tract") %>% 
