@@ -8,13 +8,14 @@ library(sf)
 library(leaflet)
 library(bivariatechoropleths)
 library(DT)
+library(htmltools)
 
 
 # READ DATA ----
 prob_fail <- st_read("data/probFailure/prob_fail_levee_area.shp") %>% 
   st_transform('+proj=longlat +datum=WGS84')
 
-structure_value <- st_read("dashboard-app/data/structureValue/nsi_2024_total_value_levee_area.shp")%>%
+structure_value <- st_read("data/structureValue/nsi_2024_total_value_levee_area.shp")%>%
   st_transform('+proj=longlat +datum=WGS84') %>% 
   rename(structure_value_area = strct__,
          total_value_trill = ttl_vl_)
@@ -30,7 +31,7 @@ soc_vul <- st_read("data/leveeLSDayPopWeightSVI/leveeLSDayPopWeightSVI.shp") %>%
   select(LMA, area, leveeAr, RPL_THEMES) %>% 
   st_transform('+proj=longlat +datum=WGS84')
 
-levee_areas <- st_read("data-clean/shapefiles/fixedLevees/leveedAreas.shp") %>% 
+levee_areas <- st_read("data/fixedLevees/leveedAreas.shp") %>% 
   st_transform('+proj=longlat +datum=WGS84')
 
 ## Everything re project into '+proj=longlat +datum=WGS84' to avoid issues with Leaflet.
@@ -52,10 +53,11 @@ managed_wetlands_pal <- colorFactor(
 
 ## Croplands
 unique(croplands$type)
-antique <- c("#855C75", "#D9AF6B", "#AF6458", "#736F4C", "#526A83", "#625377", "#68855C", "#9C9C5E", "#A06177", "#8C785D", "#467378", "#7C7C7C")
+vivid <- c("#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0", "#24796C", "#DAA51B", "#2F8AC4", "#764E9F", "#ED645A", "#CC3A8E", "#A5AA99")
+
 
 crops_pal <- colorFactor(
-  palette = antique,
+  palette = vivid,
   domain  = croplands$type)
 
 ## Social Vulnerability
@@ -76,21 +78,21 @@ structure_pal <- colorBin("YlOrRd",
 
 ## NEXT: NEED TO PREPARE DATE FOR BICHOROPLETHE MAP
 ## ------- OLD ---------
-levee_area_data <- prop_fail_area %>% 
-  left_join(soc_vul_index, by = "island_tract") %>% 
-  mutate(fail_percentile = percent_rank(lev_flr),
-         soc_vul_percentile = percent_rank(social_vul),
-         lma = str_to_title(lma))
-
-fail_soc_wgs84 <- levee_area_data %>% 
-  st_transform(crs = 4326) 
-
-data_explorer_table <- levee_area_data %>% 
-  select(island_name = lma,
-         levee_failure = lev_flr,
-         social_vul,
-         prob_levee_failure_prec = fail_percentile,
-         soc_vul_percentile) %>% 
+# levee_area_data <- prop_fail_area %>% 
+#   left_join(soc_vul_index, by = "island_tract") %>% 
+#   mutate(fail_percentile = percent_rank(lev_flr),
+#          soc_vul_percentile = percent_rank(social_vul),
+#          lma = str_to_title(lma))
+# 
+# fail_soc_wgs84 <- levee_area_data %>% 
+#   st_transform(crs = 4326) 
+# 
+data_explorer_table <- levee_areas %>% ## FIX!!
+  # select(island_name = lma,
+  #        levee_failure = lev_flr,
+  #        social_vul,
+  #        prob_levee_failure_prec = fail_percentile,
+  #        soc_vul_percentile) %>%
   st_drop_geometry()
 
 ## NEXT: BUILD DF FOR DATA EXPLORER TAB
