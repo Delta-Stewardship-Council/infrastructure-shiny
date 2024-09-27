@@ -54,12 +54,19 @@ body <- dashboardBody(
     # maps tabItem ----
     tabItem(tabName = "maps",
             
+            # Map layers description ----
+            fluidRow(
+              # use columns to create white space on sides
+              column(9, includeMarkdown("text/map-layers-description.md")),
+              column(3)
+            ), # END map layers description
+            
             # Map fluidRow ----
             fluidRow(
               
               # leaflet layer map box ----
               box(width = 12,
-                  title = tags$strong("Data layers by levee areas"),
+                  # title = tags$strong("Data layers by levee areas"),
                   
                   # leaflet output ----
                   leafletOutput(outputId = "map_data_layers") %>% 
@@ -70,10 +77,21 @@ body <- dashboardBody(
               
             ), # END layers map fluid row
             
-            # Bichoropleth FluidRow
+            # Map bichoropleth description ----
             fluidRow(
+              # use columns to create white space on sides
+              column(9, includeMarkdown("text/map-bichoropleth-description.md")),
+              column(3)
+            ), # END map bichoropleth description
+            
+            # Bichoropleth FluidRow ----
+            fluidRow(
+              # Box with userInput for bicholopleth map 
+              box(width = 2
+                  ), # END box with userInput bichoropleth map
+              
               # bichoropleth pickerInput box
-              box(width = 12,
+              box(width = 10,
                   # bichoropleth map output ----
                   leafletOutput(outputId = "map_bichoropleth")%>% 
                     withSpinner(type = 1, color = "#4287f5"),

@@ -10,6 +10,7 @@ library(bivariatechoropleths)
 library(DT)
 library(htmltools)
 library(janitor)
+library(markdown)
 
 
 # READ DATA ----
