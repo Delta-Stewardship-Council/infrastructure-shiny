@@ -2,7 +2,7 @@
 
 server <- function(input, output){
   
-  # render leaflet map ----
+  # render leaflet layer map ----
   output$map_data_layers <- renderLeaflet({
    
       # # labels for islands in soc_vul_map
@@ -25,15 +25,15 @@ server <- function(input, output){
       addPolygons(data = levee_areas,
                   group = "Levee Areas",
                   label = ~htmlEscape(
-                    paste("Name:", LMA)),
+                    paste("Name:", lma)),
                   color="black", # polygon border color
                   fill = NA,
                   weight=1.2) %>% 
       addPolygons(data = soc_vul,
                   group = "Social Vulnerability",
-                  fillColor = ~soc_vul_pal(RPL_THEMES),
+                  fillColor = ~soc_vul_pal(rpl_themes),
                   label = ~htmlEscape(
-                    paste("SOVI Index:", RPL_THEMES)),
+                    paste("SOVI Index:", rpl_themes)),
                   # label = soc_vul_labs,
                   stroke = TRUE,
                   fillOpacity = 0.6, 
@@ -49,7 +49,7 @@ server <- function(input, output){
                   weight=0.8, ) %>% # polygon border weight
       addPolygons(data = managed_wetlands,
                   group = "Habitat Type",
-                  fillColor = ~managed_wetlands_pal(PM_LndT),
+                  fillColor = ~managed_wetlands_pal(pm_lnd_t),
                   # label = soc_vul_labs,
                   stroke = TRUE,
                   fillOpacity = 0.6,
@@ -74,7 +74,7 @@ server <- function(input, output){
       ## Legend layers
       addLegend(group = "Social Vulnerability",
                 pal = soc_vul_pal,
-                values = soc_vul$RPL_THEMES,
+                values = soc_vul$rpl_themes,
                 opacity = 0.6,
                 title = "Index",
                 position = "bottomleft") %>%
@@ -86,7 +86,7 @@ server <- function(input, output){
                 position = "bottomleft") %>%
       addLegend(group = "Habitat Type",
                 pal = managed_wetlands_pal,
-                values = managed_wetlands$PM_LndT,
+                values = managed_wetlands$pm_lnd_t,
                 opacity = 0.6,
                 title = "Habitat Type",
                 position = "bottomleft") %>%
@@ -121,6 +121,29 @@ server <- function(input, output){
 
     
   }) # END of leaflet layer map
+  
+  # render leaflet bichoropleth map ----
+  output$map_bichoropleth <- renderLeaflet({
+    
+    leaflet::leaflet() %>%
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(lat=38.2, lng=-121.7, zoom=9) %>%
+      bivariatechoropleths::addBivariateChoropleth(
+        map_data = bichoropleth_all_data,
+        var1_name = fail_percentile,
+        var2_name = soc_vul_percentile,
+        ntiles= 3,
+        var1_label = "Probability of Failure",
+        var2_label = "Social Vulnerability Index",
+        region_name = "lma",
+        weight = 1,
+        fillOpacity = 0.7,
+        color = "grey",
+        highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                     weight = 2,
+                                                     opacity = 1))
+  
+    }) # END bichoropleth map
   
   
   # filter for levee island ----

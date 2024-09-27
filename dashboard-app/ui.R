@@ -10,7 +10,7 @@ impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overa
 header <- dashboardHeader(
   # title ----
   title = "Delta Levee Risk Assesment Tool",
-  titleWidth = 400
+  titleWidth = 200
   
   
 ) # END DashboardHeader
@@ -72,25 +72,42 @@ body <- dashboardBody(
             
             # Bichoropleth FluidRow
             fluidRow(
-              # plot island pickerInput box
-              box(width = 3,
-                  
-                  # pickerInput(inputId = "levee_island_input", label = "Select an island(s):",
-                  #             choices = levee_island,
-                  #             selected = c("Atlas Tract", "Bacon Island", "Bethel Island"),
-                  #             options = pickerOptions(actionsBox = TRUE),
-                  #             multiple = TRUE), # END island pickerInput
-                 
-                   ), # END checkbox input
-              
-              # plot box ----
-              box(width = 9,
-                  
+              # bichoropleth pickerInput box
+              box(width = 12,
                   # bichoropleth map output ----
-                  plotOutput(outputId = "map_bichoropleth")
+                  leafletOutput(outputId = "map_bichoropleth")%>% 
+                    withSpinner(type = 1, color = "#4287f5"),
                   
-                  ) # END bichoropleth map Box
-              
+                  # absolutePanel(
+                  #   id = "controls", 
+                  #   class = "panel panel-default", 
+                  #   fixed = TRUE,
+                  #   draggable = TRUE, 
+                  #   top = 60, 
+                  #   left = 20, 
+                  #   right = "auto", 
+                  #   bottom = "auto",
+                  #   width = 220, 
+                  #   height = "auto",
+                  #   
+                  #   h3("Select two data layers"),
+                  #   h4("Instructions:"),
+                  #   tags$div(
+                  #     "Each layer will be plot",
+                  #     tags$br(),
+                  #   
+                  #   selectInput(inputId = "bichoropleth_input", 
+                  #             # label = "Select 2 layers to plot",
+                  #             choices = c("Social Vulnerability", 
+                  #                         "Probability of Failure",
+                  #                         "Structue Value"),
+                  #             selected = c("Social Vulnerability", 
+                  #                          "Probability of Failure"),
+                  #             multiple = TRUE), # END selectInput bichoro layers
+                  # 
+                  #  ), # END absolute panel with input
+              ) # END bichoropleth box
+            
             ) # END bichoropleth map fluidRow
             
     ), # END Maps tabItem
