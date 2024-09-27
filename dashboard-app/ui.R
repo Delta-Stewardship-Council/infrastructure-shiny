@@ -10,7 +10,7 @@ impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overa
 header <- dashboardHeader(
   # title ----
   title = "Delta Levee Risk Assesment Tool",
-  titleWidth = 600
+  titleWidth = 400
   
   
 ) # END DashboardHeader
@@ -59,7 +59,7 @@ body <- dashboardBody(
               
               # leaflet layer map box ----
               box(width = 12,
-                  title = tags$strong("Map: Data layers by levee areas"),
+                  title = tags$strong("Data layers by levee areas"),
                   
                   # leaflet output ----
                   leafletOutput(outputId = "map_data_layers") %>% 
