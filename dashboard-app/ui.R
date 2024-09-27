@@ -10,7 +10,7 @@ impact_layers <- c("Probability of Failure", "Economic Value of Habitat", "Overa
 header <- dashboardHeader(
   # title ----
   title = "Delta Levee Risk Assesment Tool",
-  titleWidth = 200
+  titleWidth = 400
   
   
 ) # END DashboardHeader
@@ -48,6 +48,15 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
   
+  # tags$head(
+  #   tags$style(HTML("
+  #     .leaflet-left .leaflet-control{
+  #       zoomControl: false;
+  #     }
+  #   "))
+  # ),
+  
+
   # tabItems ----
   tabItems(
     
@@ -86,44 +95,24 @@ body <- dashboardBody(
             
             # Bichoropleth FluidRow ----
             fluidRow(
-              # Box with userInput for bicholopleth map 
-              box(width = 2
-                  ), # END box with userInput bichoropleth map
               
               # bichoropleth pickerInput box
-              box(width = 10,
+              box(width = 12,
                   # bichoropleth map output ----
                   leafletOutput(outputId = "map_bichoropleth")%>% 
                     withSpinner(type = 1, color = "#4287f5"),
                   
-                  # absolutePanel(
-                  #   id = "controls", 
-                  #   class = "panel panel-default", 
-                  #   fixed = TRUE,
-                  #   draggable = TRUE, 
-                  #   top = 60, 
-                  #   left = 20, 
-                  #   right = "auto", 
-                  #   bottom = "auto",
-                  #   width = 220, 
-                  #   height = "auto",
-                  #   
-                  #   h3("Select two data layers"),
-                  #   h4("Instructions:"),
-                  #   tags$div(
-                  #     "Each layer will be plot",
-                  #     tags$br(),
-                  #   
-                  #   selectInput(inputId = "bichoropleth_input", 
-                  #             # label = "Select 2 layers to plot",
-                  #             choices = c("Social Vulnerability", 
-                  #                         "Probability of Failure",
-                  #                         "Structue Value"),
-                  #             selected = c("Social Vulnerability", 
-                  #                          "Probability of Failure"),
-                  #             multiple = TRUE), # END selectInput bichoro layers
-                  # 
-                  #  ), # END absolute panel with input
+                  absolutePanel(top = 10, 
+                                right = 10,
+                                selectInput(inputId = "bichoropleth_select", 
+                                            label = "Select a map",
+                                            choices = c("Social Vulnerability - Probability of Failure",
+                                                        "Social Vulnerability - Structure Value",
+                                                        "Probabiliy of Failure - Structure Value"))
+                                # checkboxInput("legend", 
+                                #               "Show legend",
+                                #               TRUE)
+                  ) # END absolute panel
               ) # END bichoropleth box
             
             ) # END bichoropleth map fluidRow

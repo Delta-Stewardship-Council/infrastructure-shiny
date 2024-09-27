@@ -11,6 +11,7 @@ library(DT)
 library(htmltools)
 library(janitor)
 library(markdown)
+library(htmlwidgets)
 
 
 # READ DATA ----

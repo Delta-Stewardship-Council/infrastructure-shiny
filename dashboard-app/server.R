@@ -117,7 +117,7 @@ server <- function(input, output){
                   "Habitat Type",
                   "Croplands",
                   "Structure")) %>%
-      setView(lat=38.2, lng=-121.7, zoom=9)
+      setView(lat=38.2, lng=-121.7, zoom=9)  
 
     
   }) # END of leaflet layer map
@@ -125,32 +125,75 @@ server <- function(input, output){
   # render leaflet bichoropleth map ----
   output$map_bichoropleth <- renderLeaflet({
     
-    leaflet::leaflet() %>%
-      addProviderTiles("CartoDB.Positron") %>%
-      setView(lat=38.2, lng=-121.7, zoom=9) %>%
-      bivariatechoropleths::addBivariateChoropleth(
-        map_data = bichoropleth_all_data,
-        var1_name = fail_percentile,
-        var2_name = soc_vul_percentile,
-        ntiles= 3,
-        var1_label = "Probability of Failure",
-        var2_label = "Social Vulnerability Index",
-        region_name = "lma",
-        weight = 1,
-        fillOpacity = 0.7,
-        color = "grey",
-        highlightOptions = leaflet::highlightOptions(color = "orange",
-                                                     weight = 2,
-                                                     opacity = 1))
+    if(input$bichoropleth_select == "Social Vulnerability - Probability of Failure"){
+      leaflet::leaflet() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        setView(lat=38.2, lng=-121.7, zoom=9) %>%
+        bivariatechoropleths::addBivariateChoropleth(
+          map_data = bichoropleth_all_data,
+          var1_name = fail_percentile,
+          var2_name = soc_vul_percentile,
+          ntiles= 3,
+          var1_label = "Probability of Failure",
+          var2_label = "Social Vulnerability Index",
+          region_name = "lma",
+          weight = 1,
+          fillOpacity = 0.7,
+          color = "grey",
+          highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                       weight = 2,
+                                                       opacity = 1))
+    } else {
+      if(input$bichoropleth_select == "Social Vulnerability - Structure Value"){
+      
+      leaflet::leaflet() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        setView(lat=38.2, lng=-121.7, zoom=9) %>%
+        bivariatechoropleths::addBivariateChoropleth(
+          map_data = bichoropleth_all_data,
+          var1_name = structure_val_percentile,
+          var2_name = soc_vul_percentile,
+          ntiles= 3,
+          var1_label = "Structure Value",
+          var2_label = "Social Vulnerability Index",
+          region_name = "lma",
+          weight = 1,
+          fillOpacity = 0.7,
+          color = "grey",
+          highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                       weight = 2,
+                                                       opacity = 1))
+      
+    } # END nested if
+      else {
+      leaflet::leaflet() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        setView(lat=38.2, lng=-121.7, zoom=9) %>%
+        bivariatechoropleths::addBivariateChoropleth(
+          map_data = bichoropleth_all_data,
+          var1_name = structure_val_percentile,
+          var2_name = fail_percentile,
+          ntiles= 3,
+          var1_label = "Structure Value",
+          var2_label = "Probability of Failure",
+          region_name = "lma",
+          weight = 1,
+          fillOpacity = 0.7,
+          color = "grey",
+          highlightOptions = leaflet::highlightOptions(color = "orange",
+                                                       weight = 2,
+                                                       opacity = 1))
+    } # END 2nd else statement
+    } # END 1st else statement
   
     }) # END bichoropleth map
   
   
   # filter for levee island ----
-  levee_island_df <- reactive({
-    levee_area_data %>% 
-    filter(lma %in% input$levee_island_input)
-  }) #END reactive levee island data frame
+  # levee_island_df <- reactive({
+  #   levee_area_data %>% 
+  #   filter(lma %in% input$levee_island_input)
+  # }) #END reactive levee island data frame
   
   # render bichoroplth map ----
    # END render bichoropleth map
