@@ -171,11 +171,11 @@ server <- function(input, output){
         setView(lat=38.2, lng=-121.7, zoom=9) %>%
         bivariatechoropleths::addBivariateChoropleth(
           map_data = bichoropleth_all_data,
-          var1_name = structure_val_percentile,
-          var2_name = fail_percentile,
+          var1_name = fail_percentile,
+          var2_name = structure_val_percentile,
           ntiles= 3,
-          var1_label = "Structure Value",
-          var2_label = "Probability of Failure",
+          var1_label = "Probability of Failure",
+          var2_label = "Structure Value",
           region_name = "lma",
           weight = 1,
           fillOpacity = 0.7,

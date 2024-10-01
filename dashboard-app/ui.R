@@ -108,7 +108,7 @@ body <- dashboardBody(
                                             label = "Select a map",
                                             choices = c("Social Vulnerability - Probability of Failure",
                                                         "Social Vulnerability - Structure Value",
-                                                        "Probabiliy of Failure - Structure Value"))
+                                                        "Structure Value -Probabiliy of Failure"))
                                 # checkboxInput("legend", 
                                 #               "Show legend",
                                 #               TRUE)
