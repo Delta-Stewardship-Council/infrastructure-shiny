@@ -19,28 +19,17 @@ header <- dashboardHeader(
 # ................Dashboard Sidebar.....................
 
 sidebar <- dashboardSidebar(
-  
-  # sidebar menu ----
-  sidebarMenu(
-    menuItem(text = " Maps",
-             tabName = "maps",
-             icon = icon("map")),
-    
-    menuItem(text = " Plots",
-             tabName = "plots",
-             icon = icon("chart-simple")),
-    
-    menuItem(text = "About",
-             tabName = "about",
-             icon = icon("list")),
-    
-    menuItem(text = " Data Exploration",
-             tabName = "dataExploration",
-             icon = icon("table"))
-    
-    
+  # Optimize sidebar menu with minimal initial load
+  sidebarMenu(id = "sidebarmenu",
+              menuItem(text = "Maps",
+                       tabName = "maps",
+                       icon = icon("map")),
+              
+              # Lazy load other menu items
+              menuItemOutput("plotsMenuItem"),
+              menuItemOutput("aboutMenuItem"),
+              menuItemOutput("dataMenuItem")
   ) # END sidebarMenu
-  
 ) # END dashboardSidebar
 
 
@@ -56,7 +45,7 @@ body <- dashboardBody(
   #   "))
   # ),
   
-
+  
   # tabItems ----
   tabItems(
     
@@ -82,7 +71,7 @@ body <- dashboardBody(
                     withSpinner(type = 1, color = "#4287f5")
                   
                   
-                  ) # END layers map box
+              ) # END layers map box
               
             ), # END layers map fluid row
             
@@ -114,32 +103,23 @@ body <- dashboardBody(
                                 #               TRUE)
                   ) # END absolute panel
               ) # END bichoropleth box
-            
+              
             ) # END bichoropleth map fluidRow
             
     ), # END Maps tabItem
     
-    # Plots tabItem ----
+    # Other tabs - load on demand
     tabItem(tabName = "plots",
-            
-            "page under construction"
-            
-    ), # END Plots tabItem
+            uiOutput("plotsContent")
+    ),
     
-    # about tabItem
     tabItem(tabName = "about",
-            
-            "DESCRIPTION AND METHODS INFORMATION GOES HERE"
-      
-    ), #END about tabItem
+            uiOutput("aboutContent")
+    ),
     
-    # data exploration tabItem ----
     tabItem(tabName = "dataExploration",
-            
-                DT::dataTableOutput(outputId = "interactive_table_output")
-
-      
-    ) #END data exploration tabItem
+            uiOutput("dataExplorationContent")
+    )
     
   ) # END tabItems
   
