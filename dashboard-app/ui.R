@@ -1,3 +1,5 @@
+
+
 #................Input Variables.....................
 
 # defining vectors with names of map layers for user to choose from
@@ -37,6 +39,25 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
   
+  tags$head(
+    tags$style(
+      HTML("
+      .shiny-notification {
+        position: fixed;
+        bottom: 10px;  /* position from the bottom */
+        right: 10px;   /* position from the right */
+        width: 400px;  /* larger width */
+        font-size: 1.5em;  /* larger font */
+        padding: 20px;  /* more padding */
+        border-radius: 10px;
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.9);  /* darker background */
+        color: white;  /* white text */
+      }
+    ")
+    )
+  ),
+  leafletjs,
   # tags$head(
   #   tags$style(HTML("
   #     .leaflet-left .leaflet-control{
