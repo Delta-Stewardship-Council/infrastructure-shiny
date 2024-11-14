@@ -69,56 +69,89 @@ server <- function(input, output){
       type = "message"
     )
     
-    # showNotification(
-    #   paste("Loading Additional Layers..."),
-    #   duration = NULL,
-    #   closeButton = FALSE,
-    #   type = "message", 
-    #   id = "others"
-    # )
+    habitatLabels <- paste0(
+      "<strong>", data$managed_wetlands$lma, "</strong>", 
+      "<br>Total: ", round(data$managed_wetlands$ovrlp_at, 2),
+      "<br>Agriculture: ", round(data$managed_wetlands$agrcltr, 2),
+      "<br>Akali Seasonal Wetland: ", round(data$managed_wetlands$alkl_swc, 2),
+      "<br>Grassland: ", round(data$managed_wetlands$grsslnd, 2),
+      "<br>Managed Wetlands: ", round(data$managed_wetlands$mngd_wtl, 2),
+      "<br>Oak Woodland: ", round(data$managed_wetlands$ok_wdlnd, 2),
+      "<br>Riparian: ", round(data$managed_wetlands$riparin, 2),
+      "<br>Seasonal and Nontidal Wetland: ", round(data$managed_wetlands$ssnla_nw, 2),
+      "<br>Tidal Wetland: ", round(data$managed_wetlands$tdl_wtln, 2),
+      "<br>Urban and Barren Land: ", round(data$managed_wetlands$urbna_bl, 2),
+      "<br>Vernal Pool Complex: ", round(data$managed_wetlands$vrnl_pl_c, 2),
+      "<br>Water: ", round(data$managed_wetlands$water, 2)
+    ) %>% 
+      lapply(htmltools::HTML)
+    
+    # # For sure cannot display all of these. Will only display the total for now...
+    # cropLabels <- paste0(
+    #   "<strong>", data$managed_wetlands$lma, "</strong>",
+    #   "<br>Total: ", round(data$managed_wetlands$ovrlp_at, 2),
+    #   "<br>Agriculture: ", round(data$managed_wetlands$agrcltr, 2),
+    #   "<br>Akali Seasonal Wetland: ", round(data$managed_wetlands$alkl_swc, 2),
+    #   "<br>Grassland: ", round(data$managed_wetlands$grsslnd, 2),
+    #   "<br>Managed Wetlands: ", round(data$managed_wetlands$mngd_wtl, 2),
+    #   "<br>Oak Woodland: ", round(data$managed_wetlands$ok_wdlnd, 2),
+    #   "<br>Riparian: ", round(data$managed_wetlands$riparin, 2),
+    #   "<br>Seasonal and Nontidal Wetland: ", round(data$managed_wetlands$ssnla_nw, 2),
+    #   "<br>Tidal Wetland: ", round(data$managed_wetlands$tdl_wtln, 2),
+    #   "<br>Urban and Barren Land: ", round(data$managed_wetlands$urbna_bl, 2),
+    #   "<br>Vernal Pool Complex: ", round(data$managed_wetlands$vrnl_pl_c, 2),
+    #   "<br>Water: ", round(data$managed_wetlands$water, 2)
+    # ) %>%
+    #   lapply(htmltools::HTML)
 
     leafletProxy("map_data_layers") %>%
-      addPolygons(data = data$soc_vul,
+      addPolygons(data = st_simplify(data$soc_vul, preserveTopology = T, dTolerance = 1),
                   # layerId = ~data$soc_vul$lma,
                   group = "Social Vulnerability",
                   fillColor = ~data$soc_vul_pal(rpl_themes),
-                  label = ~htmlEscape(paste("SOVI Index:", rpl_themes)),
+                  # label = ~htmlEscape(paste("SOVI Index:", round(rpl_themes, 2))),
+                  label = ~paste0("<strong>", lma, ":</strong> ", round(rpl_themes, 2)) %>% lapply(HTML),
                   stroke = F,
                   fillOpacity = 0,
                   opacity = 0,
                   color = "black",
                   weight = 0.8) %>%
-      addPolygons(data = data$prob_fail,
+      addPolygons(data = st_simplify(data$prob_fail, preserveTopology = T, dTolerance = 1),
                   # layerId = ~data$prob_fail$lma,
                   group = "Probability of Failure",
                   fillColor = ~data$prob_fail_pal(lev_flr),
+                  label = ~paste0("<strong>", lma, ":</strong> ", round(lev_flr, 2)) %>% lapply(HTML),
                   stroke = F,
                   fillOpacity = 0,
                   opacity = 0,
                   color = "black",
                   weight = 0.8) %>%
-      addPolygons(data = data$managed_wetlands,
+      addPolygons(data = st_simplify(data$managed_wetlands, preserveTopology = T, dTolerance = 1),
                   # layerId = ~id,
                   group = "Habitat Type",
-                  fillColor = ~data$managed_wetlands_pal(pm_lnd_t),
+                  fillColor = ~data$managed_wetlands_pal(ovrlp_at),
+                  label = ~habitatLabels,
                   stroke = F,
                   fillOpacity = 0,
                   opacity = 0,
                   color = "black",
                   weight = 0.8) %>%
-      addPolygons(data = data$croplands,
+      addPolygons(data = st_simplify(data$croplands, preserveTopology = T, dTolerance = 1),
                   # layerId = ~data$croplands$lma,
                   group = "Croplands",
-                  fillColor = ~data$crops_pal(type),
+                  fillColor = ~data$crops_pal(ttl_cr_vm),
+                  label = ~paste0("<strong>", lma, ":</strong> ", round(ttl_cr_vm, 2)) %>% lapply(HTML),
                   stroke = F,
                   fillOpacity = 0,
                   opacity = 0,
                   color = "black",
                   weight = 0.8) %>%
-      addPolygons(data = data$structure_value,
+      addPolygons(data = st_simplify(data$structure_value, preserveTopology = T, dTolerance = 1),
                   # layerId = ~data$structure_value$lma,
                   group = "Structure",
                   fillColor = ~data$structure_pal(total_value_trill),
+                  label = ~paste0("<strong>", lma, ":</strong> ", ifelse(is.na(total_value_trill), "NA", round(total_value_trill, 2))) %>% 
+                    lapply(HTML),
                   stroke = F,
                   fillOpacity = 0,
                   opacity = 0,
@@ -157,13 +190,12 @@ server <- function(input, output){
       
       additionalLayers %...>% (function(data) {
         leafletProxy("map_data_layers", data = data$soc_vul) %>%
-          # setShapeStyle(layerId = ~lma, fillOpacity = 0.6) %>% 
           setGroupStyle(groupName = "Social Vulnerability", fillOpacity = 0.6) %>% 
           addLegend(group = "Social Vulnerability",
                     pal = data$soc_vul_pal,
                     values = data$soc_vul$rpl_themes,
                     opacity = 0.6,
-                    title = "Index",
+                    title = "Social Vulnerability Index (SOVI)",
                     position = "bottomleft")
       })
       layerStatus$socVulLoaded <- TRUE
@@ -173,7 +205,6 @@ server <- function(input, output){
       
       additionalLayers %...>% (function(data) {
         leafletProxy("map_data_layers", data = data$prob_fail) %>%
-          # setShapeStyle(layerId = ~lma, fillOpacity = 0.6) %>% 
           setGroupStyle(groupName = "Probability of Failure", fillOpacity = 0.6) %>% 
           addLegend(group = "Probability of Failure",
                     pal = data$prob_fail_pal,
@@ -192,9 +223,9 @@ server <- function(input, output){
           setGroupStyle(groupName = "Habitat Type", fillOpacity = 0.6, stroke = T, opacity = 0.6) %>%
           addLegend(group = "Habitat Type",
                     pal = data$managed_wetlands_pal,
-                    values = data$managed_wetlands$pm_lnd_t,
+                    values = data$managed_wetlands$ovrlp_at,
                     opacity = 0.6,
-                    title = "Habitat Type",
+                    title = "Habitat Acreage",
                     position = "bottomleft")
       })
       layerStatus$habitatLoaded <- TRUE
@@ -204,13 +235,12 @@ server <- function(input, output){
       
       additionalLayers %...>% (function(data) {
         leafletProxy("map_data_layers", data = data$croplands) %>%
-          # setShapeStyle(layerId = ~lma, fillOpacity = 0.6) %>% 
           setGroupStyle(groupName = "Croplands", fillOpacity = 0.6) %>% 
           addLegend(group = "Croplands",
                     pal = data$crops_pal,
-                    values = data$croplands$type,
+                    values = data$croplands$ttl_cr_vm,
                     opacity = 0.6,
-                    title = "Cropland Types",
+                    title = "Crop Value (Millions)",
                     position = "bottomleft")
       })
       layerStatus$cropsLoaded <- TRUE
@@ -220,13 +250,12 @@ server <- function(input, output){
 
       additionalLayers %...>% (function(data) {
         leafletProxy("map_data_layers", data = data$structure_value) %>%
-          # setShapeStyle(layerId = ~lma, fillOpacity = 0.6) %>% 
           setGroupStyle(groupName = "Structure", fillOpacity = 0.6) %>% 
           addLegend(group = "Structure",
                     pal = data$structure_pal,
                     values = data$structure_value$total_value_trill,
                     opacity = 0.6,
-                    title = "Structure Value",
+                    title = "Structure Value (Trillions)",
                     position = "bottomleft")
       })
       layerStatus$structureLoaded <- TRUE
@@ -245,13 +274,6 @@ server <- function(input, output){
   output$dataMenuItem <- renderMenu({
     menuItem(text = "Data Explorer", tabName = "dataExploration", icon = icon("table"))
   })
-  
-  showNotification(
-    "Loading bichoroplet map",
-    type = "message",
-    duration = NULL,
-    id = "bichoropleth"
-  )
  
   # render leaflet bichoropleth map ----
   additionalLayers %...>% (function(data) {
@@ -319,8 +341,6 @@ server <- function(input, output){
     }) # END bichoropleth map
   })
   
-  removeNotification("bichoropleth")
-  
   # Lazy load content for other tabs
   output$plotsContent <- renderUI({
     req(input$sidebarmenu == "plots")
@@ -354,25 +374,4 @@ server <- function(input, output){
               )
     )
   })
-  
-  # filter for levee island ----
-  # levee_island_df <- reactive({
-  #   levee_area_data %>% 
-  #   filter(lma %in% input$levee_island_input)
-  # }) #END reactive levee island data frame
-  
-  # render bichoroplth map ----
-  # END render bichoropleth map
-  
-  
-  # data explorer interactive table ----
-  # output$interactive_table_output <- DT::renderDataTable(
-  #   
-  #   DT::datatable(data_explorer_table,
-  #                 options = list(paging=FALSE),
-  #                 rownames = FALSE)
-  # ) # END data explorer interactive table
-  
-  
-  
 } # END Server

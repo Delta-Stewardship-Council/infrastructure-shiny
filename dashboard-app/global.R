@@ -33,13 +33,12 @@ additionalLayers <- future_promise({
            total_value_trill = ttl_vl_) %>%
     clean_names()
 
-  managed_wetlands <- st_read("data/managedWetlands/managedWetlands.shp") %>%
+  managed_wetlands <- st_read("data/managedWetlands/managedWetlands_perLevee.shp") %>%
     st_transform(4326) %>%
     clean_names()
 
-  croplands <- st_read("data/deltaCropland/croplandsByType.shp") %>%
+  croplands <- st_read("data/deltaCropland/deltaCroplandValued_perLevee.shp") %>%
     st_transform(4326) %>%
-    rename(total_crop_area = ttl_cr_) %>%
     clean_names()
 
   soc_vul <- st_read("data/leveeLSDayPopWeightSVI/leveeLSDayPopWeightSVI.shp") %>%
@@ -51,26 +50,38 @@ additionalLayers <- future_promise({
 
   ## Probability of Failure
   prob_fail_pal <- colorNumeric(
-    palette = "magma",
+    palette = "Reds",
     domain = prob_fail$lev_flr)
 
+  # ## Managed Wetlands
+  # rainbow <- c("#ff0000", "#ff5300", "#ffa500", "#ffd200", "#ffff00", "#80c000", 
+  #              "#008000", "#004080", "#0000ff", "#2600c1", "#4b0082")
+  # 
+  # 
+  # managed_wetlands_pal <- colorFactor(
+  #   palette = rainbow,
+  #   domain  = managed_wetlands$pm_lnd_t)
+  # 
+  # ## Croplands
+  # # unique(croplands$type)
+  # vivid <- c("#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0", "#24796C", "#DAA51B")
+  # 
+  # 
+  # crops_pal <- colorFactor(
+  #   palette = vivid,
+  #   domain  = croplands$type)
+  
   ## Managed Wetlands
-  rainbow <- c("#ff0000", "#ff5300", "#ffa500", "#ffd200", "#ffff00", "#80c000", 
-               "#008000", "#004080", "#0000ff", "#2600c1", "#4b0082")
-
-
-  managed_wetlands_pal <- colorFactor(
-    palette = rainbow,
-    domain  = managed_wetlands$pm_lnd_t)
-
-  ## Croplands
-  # unique(croplands$type)
-  vivid <- c("#E58606", "#5D69B1", "#52BCA3", "#99C945", "#CC61B0", "#24796C", "#DAA51B")
-
-
-  crops_pal <- colorFactor(
-    palette = vivid,
-    domain  = croplands$type)
+  managed_wetlands_pal <- colorBin(
+    palette = "YlGn",
+    domain = managed_wetlands$ovrlp_at
+  )
+  
+  ## Cropland Valuation
+  crops_pal <- colorBin(
+    palette = "YlOrRd",
+    domain = croplands$ttl_cr_vm
+  )
 
   ## Social Vulnerability
   soc_vul_pal <- colorNumeric(
@@ -81,10 +92,9 @@ additionalLayers <- future_promise({
   # range(structure_value$total_value_trill, na.rm = T)
 
   ## structure color pallet
-  bins <- c(0, 1, 10, 100, 1000, 20000, 30000, 40000, 70000)
+  # bins <- c(0, 1, 10, 100, 1000, 20000, 30000, 40000, 70000)
   structure_pal <- colorBin("YlOrRd",
-                            domain = structure_value$total_value_trill,
-                            bins = bins)
+                            domain = structure_value$total_value_trill)
   
   ## Data for bichoropleth map
   prob_fail2 <- prob_fail %>%
